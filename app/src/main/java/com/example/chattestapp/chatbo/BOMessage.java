@@ -1,8 +1,8 @@
 package com.example.chattestapp.chatbo;
 
 public class BOMessage {
-    public String sender;
-    public String message_content;
-    public String room_name;
-    public String message_date;
+    public String userId;
+    public String messageContent;
+    public String roomId;
+    public String messageDate;
 }

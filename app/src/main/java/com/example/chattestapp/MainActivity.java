@@ -30,8 +30,10 @@ public class MainActivity extends AppCompatActivity {
             opt.transports  =new String[]{"websocket"};
 
             //mSocket = IO.socket("http://10.0.2.2:8000",opt);
-            //mSocket = IO.socket("http://192.168.86.242:8000",opt);
-            mSocket = IO.socket("http://cht.marvy.tech:8000",opt);
+            mSocket = IO.socket("http://192.168.86.248:8000",opt);
+            //mSocket = IO.socket("http://cht.marvy.tech:8000",opt);
+            //mSocket = IO.socket("http://99.62.189.116:8000",opt);
+
         } catch (URISyntaxException e) {
             Log.e("socket", String.valueOf(e.getStackTrace()));
         }
@@ -39,8 +41,8 @@ public class MainActivity extends AppCompatActivity {
 
     Button btn_send;
     EditText et_message;
-    String user_name = "android_user_01";
-    String room_name = "marvy_room_01";
+    String user_name = "clark@kent.com";
+    String room_name = "21d22a2b81b744c3aaae55a76a0789ad";
     String property_uuid = "afosdfaj-adsf-asdf-a354";
 
     @Override
@@ -56,10 +58,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 BOMessage boMessage = new BOMessage();
-                boMessage.message_content = et_message.getText().toString();
-                boMessage.message_date = android.text.format.DateFormat.format("yyyyMMddHHmmssz", Calendar.getInstance().getTime()).toString();
-                boMessage.room_name = room_name;
-                boMessage.sender = user_name;
+                boMessage.messageContent = et_message.getText().toString();
+                boMessage.messageDate = android.text.format.DateFormat.format("yyyyMMddHHmmssz", Calendar.getInstance().getTime()).toString();
+                boMessage.roomId = room_name;
+                boMessage.userId = user_name;
                 SendMessage(boMessage);
                 et_message.getText().clear();
             }
@@ -73,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         mSocket.on("user_id",on_user_id);
         //mSocket.on("user_in", on_user_in);
         //mSocket.on("user_out", on_user_out);
+        mSocket.on("socket_error", on_socket_error);
 
         mSocket.on("receive_message",on_receive_message);
 
@@ -82,8 +85,8 @@ public class MainActivity extends AppCompatActivity {
             mSocket.connect();
         }
         BOUser boUser = new BOUser();
-        boUser.user_name = user_name;
-        boUser.room_name = room_name;
+        boUser.userId = user_name;
+        boUser.roomId = room_name;
         JoinChatRoom(boUser);
     }
 
@@ -105,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
         try{
             String json = gson.toJson(boMessage);
             Log.e("chat",json);
-            Object args[] = new Object[]{json,boMessage.room_name};
+            Object args[] = new Object[]{json,boMessage.roomId};
 
             mSocket.emit("send_message",args);
         }catch(Exception e){
@@ -137,6 +140,20 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
                     if(args.length == 1){
                         Log.d("user_id",args[0].toString());
+                    }
+                }
+            });
+        }
+    };
+
+    Emitter.Listener on_socket_error = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if(args.length == 1){
+                        Log.d("socket_error",args[0].toString());
                     }
                 }
             });
